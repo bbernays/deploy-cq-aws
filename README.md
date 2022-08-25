@@ -2,7 +2,7 @@
 
 ### Note: This template is an Alpha Feature, which means there might be issues but we are interested in your feedback
 
-For fully supported deployment methods check out the Helm Chart and associated Terraform found on our [Documentation Site](https://docs.cloudquery.io/docs/deployment/helm-chart/)
+For fully supported deployment methods check out the Helm Chart and associated Terraform found on our [Documentation Site](https://www.cloudquery.io/docs/deployment/overview)
 
 
 
