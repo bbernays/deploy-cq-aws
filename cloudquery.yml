@@ -1,0 +1,19 @@
+cloudquery:
+    providers:
+        - name: aws
+          version: latest
+    connection:
+        type: postgres
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}
+        host: ${DB_URL}
+        port: 5432
+        database: ${DB_NAME}
+        sslmode: disable
+providers:
+  - name: aws
+    configuration:
+      regions:
+        - "*"
+    resources:
+    - "*"
