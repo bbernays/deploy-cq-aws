@@ -31,22 +31,20 @@ make deploy
 ```
 make store-config
 ```
-<!-- 7. You can manually run a fetch by running the following command:
+7. You can manually run a fetch by running the following command:
 ```
 make run-task
-``` -->
+``` 
+Note: this assumes that the cloudquery configuration file is located in the s3 bucket that was created by the template `s3://<bucket_name>/cloudquery.yml`
 
 ### Current Limitations:
 - [ ] Support user defined VPC
-- [x] Enable user to define and upload custom `cloudquery.yml`
 - [x] Allow user to specify CQ core version
   - [ ] Needs documentation
-- [x] Allow user to specify cq-provider-aws version
-  - [ ] Needs documentation
 - [ ] Enable user to define custom policy
-- [x] Task Role is using the ReadOnly Policy from AWS that has certain accesses that it doesn't need including Kinesis, DynamoDB and others
 - [ ] Provide way of interacting with external database
 - [ ] Support using AWS RDS IAM credentials instead of admin credentials
+- [ ] Document how to support multiple parallel cq fetches
 
 
 ## Send us feedback
