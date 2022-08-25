@@ -13,7 +13,7 @@ This Cloudformation Template enables users to quickly setup an environment for u
 
 ### Components:
 - **Schedule Trigger**: A CloudWatch Rule that triggers periodically based on a schedule. The event contains the url of the configuration file stored in S3 that the fetch task will use. 
-- **Distributed Lock**: A StepFunction that ensures that only a task is running for any single configuration file.
+- **Distributed Lock**: A [StepFunction](https://aws.amazon.com/blogs/compute/controlling-concurrency-in-distributed-systems-using-aws-step-functions/) that ensures that only a task is running for any single configuration file.
 - **Configuration Storage**: S3 bucket that is configured to allow the Task Role permission to perform GetObject
 - **Postgres Database**: An Aurora Serverless Database where CloudQuery stores all of the data that it fetche
 
