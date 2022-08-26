@@ -335,8 +335,9 @@ Resources:
           Image: !Sub ghcr.io/cloudquery/cloudquery:${CQVersion}
           Name: ScheduledWorker
           Environment:
-            - 
-              Name: CQ_VAR_DB_URL
+            - Name: CQ_INSTALL_SRC
+              Value: CLOUDFORMATION
+            - Name: CQ_VAR_DB_URL
               Value: !If [DeployDB, !GetAtt Cluster.Endpoint.Address, !Ref DbUrl]
             - Name: CQ_VAR_DB_NAME
               Value: !Sub cloudquery${EnvironmentName}
