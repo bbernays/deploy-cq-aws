@@ -9,13 +9,11 @@ For fully supported deployment methods check out the Helm Chart and associated T
 ## Overview
 This Cloudformation Template enables users to quickly setup an environment for using CloudQuery fetch functionality. This template creates resources that are not included in the Free tier. 
 
-![Architecture Overview](https://user-images.githubusercontent.com/30294676/186777055-aa1022e2-c80f-47c4-973f-25e44c74ff68.png)
 
 ### Components:
-- **Schedule Trigger**: A CloudWatch Rule that triggers periodically based on a schedule. The event contains the url of the configuration file stored in S3 that the fetch task will use. 
-- **Distributed Lock**: A [StepFunction](https://aws.amazon.com/blogs/compute/controlling-concurrency-in-distributed-systems-using-aws-step-functions/) that ensures that only a task is running for any single configuration file.
-- **Configuration Storage**: S3 bucket that is configured to allow the Task Role permission to perform GetObject
-- **Postgres Database**: An Aurora Serverless Database where CloudQuery stores all of the data that it fetche
+- **Schedule Trigger**: An Eventbridge Rule that triggers periodically based on a schedule. The event contains the url of the configuration file stored in S3 that the fetch task will use. 
+- **ECS Service**: ECS task running on top of Fargate
+
 
 
 ## Capabilities:
