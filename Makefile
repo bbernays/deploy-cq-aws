@@ -1,13 +1,16 @@
 
-
+.PHONY: check-env
 check-env:
 ifndef STACKNAME
 	$(error STACKNAME is undefined)
 endif
+ifndef BUCKET_NAME
+	$(error BUCKET_NAME is undefined)
+endif
 
 .PHONY: deploy
 deploy: check-env
-	aws cloudformation deploy --template-file template.yml --stack-name $(STACKNAME) --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+	aws cloudformation deploy --template-file template.yml --stack-name $(STACKNAME)  --parameter-overrides DestinationS3Bucket=$(BUCKET_NAME)  CQConfiguration=$$(cat cloudquery.yml| base64) --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
 				
 
 .PHONY: store-config
