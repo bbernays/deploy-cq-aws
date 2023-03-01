@@ -26,22 +26,20 @@ This Cloudformation Template enables users to quickly setup an environment for u
 
 1. Clone repo
 2. Install aws cli v2
-3. Set the name of your stack:
+3. Set the name of your stack and the bucket where data will go:
 ```bash
 export STACKNAME=CloudQuery-Deployment
+export BUCKET_NAME=<S3 Bucket NAME> 
 ```
 4. Deploy the stack: 
 ```bash
 make deploy
 ```
 5. Update the config file to specify the resources and regions you want to grab (by default it will grab all resources in all enabled regions)
-6. Copy `cloudquery.yml` to s3 created by cloudformation
+
 ```
-make store-config
-```
-7. You can manually run a fetch by running the following command:
-```
-make run-task
+This won't work yet, need to call aws ecs start-task directly. Need to ensure, VPC, SGs, Subnets, TaskID, ServiceName are all outputted from CFN
+// make run-task
 ``` 
 Note: this assumes that the cloudquery configuration file is located in the s3 bucket that was created by the template `s3://<bucket_name>/cloudquery.yml`
 
