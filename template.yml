@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: 'Cloudformation for provisioning service required to schedule and execute RDS jobs using AWS CodeBuild'
+Description: 'Deploy CloudQuery on AWS Fargate'
 
 Parameters:
   CQVersion:
@@ -45,6 +44,10 @@ Parameters:
     Description: Please enter a comma separated list of Subnet Ids where you want to run CloudQuery and the Database.
     Type: String
     Default: ""
+  SecurityGroupIds:
+    Description: Please enter a comma separated list of Security Group IDs that you want to attach to the Fargate node.
+    Type: String
+    Default: ""    
   DestinationS3Bucket:
     Description: Please enter the name of the S3 bucket where you want to store the CloudQuery results
     Type: String
@@ -305,9 +308,58 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties: 
       RetentionInDays: 14
-  
-  
-  
+  # Scheduler Configurations
+  Schedule:
+    Type: AWS::Scheduler::Schedule
+    Properties: 
+      FlexibleTimeWindow: 
+        Mode: "OFF"
+      ScheduleExpression: "rate(12 minutes)"
+      State: DISABLED
+      Target: 
+          Arn: !GetAtt ECSCluster.Arn
+          EcsParameters: 
+              NetworkConfiguration: 
+                AwsvpcConfiguration: 
+                  AssignPublicIp: DISABLED
+                  SecurityGroups: !If [DeployVPC, !Split [ "," , !Join [ ",", [ !Ref ECSSecurityGroup, !Ref PgServerlessSecurityGroup ]]], !Split [ "," , !Ref SecurityGroupIds]]
+                  Subnets: !If [DeployVPC, !Split [ "," , !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]], !Split [ "," , !Ref PrivateSubnetIds]]
+              LaunchType: FARGATE
+              PlatformVersion: 1.4.0
+              TaskCount: 1
+              TaskDefinitionArn: !Ref ScheduledWorkerTask
+          RoleArn: !GetAtt SchedulerExecutionRole.Arn
+        
+  SchedulerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - scheduler.amazonaws.com
+        Version: '2012-10-17'
+      Path: "/"
+      Policies:
+      - PolicyName: SchedulerExecutionRole
+        PolicyDocument:  
+          Version: '2012-10-17'
+          Statement:
+          - Action:
+            - ecs:RunTask
+            Effect: Allow
+            Resource: !Ref ScheduledWorkerTask
+            Condition:
+              ArnEquals:
+                ecs:cluster: !GetAtt ECSCluster.Arn
+          - Effect: Allow
+            Action:
+              - iam:PassRole
+            Resource: !GetAtt ExecutionRole.Arn
+
   ####### IAM role for Fargate execution#####
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -367,7 +419,6 @@ Resources:
     Properties: 
       DashboardBody: !Sub | 
         {"widgets":[{"height":6,"width":24,"y":6,"x":0,"type":"log","properties":{"query":"SOURCE 'bernays-LogGroup-hB8mPNxbvq3x' | fields @timestamp, error,client, message, module, table,time\n| sort @timestamp desc\n| filter ispresent(level) and ispresent(error) and level = \"error\"\n| limit 20","region":"us-east-2","stacked":false,"title":"Errors","view":"table"}},{"height":6,"width":12,"y":0,"x":0,"type":"log","properties":{"query":"SOURCE 'bernays-LogGroup-hB8mPNxbvq3x' | filter message != \"Sync in progress\"\n| filter message != \"sync finished\"\n| filter ispresent(resources)\n| filter resources > 0\n| stats sum(resources) by bin(1min)\n","region":"us-east-2","stacked":false,"title":"Resources Per Minute","view":"timeSeries"}}]}
- 
 Outputs:
   ClusterId:
     Value: !Ref ECSCluster
@@ -377,4 +428,4 @@ Outputs:
     Description: A list of the private subnets
     Value: !If [DeployVPC,!Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]], !Ref PrivateSubnetIds]
   SecurityGroups:
-    Value: !Join [ ",", [ !Ref ECSSecurityGroup, !Ref PgServerlessSecurityGroup]]
+    Value: !If [DeployVPC,!Join [ ",", [ !Ref ECSSecurityGroup, !Ref PgServerlessSecurityGroup]], !Ref SecurityGroupIds]
