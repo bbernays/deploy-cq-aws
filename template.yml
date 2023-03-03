@@ -13,7 +13,7 @@ Parameters:
   ScheduleExpression:
     Description: Please enter the Eventbridge Schedule Expression. This can either be a Rate or a cron expression. This will define how often CloudQuery will run the sync.
     Type: String
-    Default: "rate(12 hours)"
+    Default: "rate(24 hours)"
   VpcId:
     Description: Please enter the Id of the VPC in which you want to deploy CloudQuery. If you specify this parameter no networking will be deployed. You also must specify `PrivateSubnetIds` and `SecurityGroupIds`.
     Type: String
@@ -294,7 +294,7 @@ Resources:
       FlexibleTimeWindow: 
         Mode: "OFF"
       ScheduleExpression: !Ref ScheduleExpression
-      State: DISABLED
+      State: ENABLED
       Target: 
           Arn: !GetAtt ECSCluster.Arn
           EcsParameters: 
